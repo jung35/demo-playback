@@ -12,7 +12,6 @@ module.exports = function({ demo_path }, cb) {
       console.log(`[${process.pid}] start buffer`);
 
       demo_info.map = demoFile.header.mapName;
-
     });
 
     demoFile.gameEvents.on("round_start", () => {
@@ -27,7 +26,6 @@ module.exports = function({ demo_path }, cb) {
     });
 
     demoFile.on("end", () => {
-
       cb(demo_info);
     });
 
@@ -39,7 +37,17 @@ module.exports = function({ demo_path }, cb) {
       const current_tick = { tick: e.tick, players: [] };
 
       demoFile.entities.players.map((player) => {
-        current_tick.players.push({ position: player.position, team: parseInt(player.teamNumber) });
+        if (player.isHltv || player.isFakePlayer) {
+          return;
+        }
+
+        current_tick.players.push({
+          position: player.position,
+          team: parseInt(player.teamNumber),
+          health: player.health,
+          life_state: player.lifeState,
+          angle: player.eyeAngles && player.eyeAngles.yaw
+        });
       });
 
       demo_info.tick_events.push(current_tick);
